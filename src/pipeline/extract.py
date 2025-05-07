@@ -1,5 +1,5 @@
 # 
-# Classe que extrai os dados da API
+# Classe que extrai os dados da API e os salva em um arquivo JSON
 #
 
 # --- bibliotecas
@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from typing import List, Dict, Any
 import logging
+import json
 
 # --- configs
 load_dotenv()
@@ -73,11 +74,36 @@ class APIExtractor:
             return []
         
         return data
+    
+    def save_to_json(self, file_path: str='src/data/dados.json', pretty=True) -> bool:
+            """
+            Salva os dados da API em um arquivo JSON.
+            
+            Args:
+                file_path: Caminho onde o arquivo será salvo
+                pretty: Se True, formata o JSON com indentação
+                
+            Returns:
+                True se o arquivo foi salvo com sucesso, False caso contrário
+            """
+            data = self.get_data()
+            if not data:
+                return False
+                
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    indent = 4 if pretty else None
+                    json.dump(data, f, indent=indent, ensure_ascii=False)
+                logging.info(f"Dados salvos com sucesso em {file_path}")
+                return True
+            except Exception as err:
+                logging.error(f"Erro ao salvar arquivo JSON: {err}")
+                return False
  
 # --- testes de execução
 if __name__ == '__main__':
     import json
     extractor = APIExtractor()
     data = extractor.get_data()
-    if data:print(json.dumps(data[:3], indent=4, ensure_ascii=False))
+    if data:extractor.save_to_json()
 
