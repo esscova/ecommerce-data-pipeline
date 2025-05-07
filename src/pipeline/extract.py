@@ -26,18 +26,38 @@ class APIExtractor:
             raise ValueError('URL da API não informada')
 
     def __extract(self) -> List[Dict[str, Any]]:
+        """
+            Extrai dados da API definida na inicialização da classe.
+        
+            Returns:
+                Lista de dicionários com os dados da API ou None em caso de erro.
+        """
         logging.info('Iniciando extração dos dados da API')
+        
         try:
-            response = requests.get(self.url)
+            response = requests.get(self.url, timeout=self.timeout)
             response.raise_for_status()
+            dados = response.json()
+            
             logging.info(f'Coleta de dados bem sucedida: {response.status_code}')
             logging.info(f'Tamanho da coleta: {len(response.json())}')
-            return response.json()
+            
+            return dados
+        
         except requests.exceptions.HTTPError as err:
-            logging.error("Erro request: ", err)
+            logging.error(f"Erro HTTP: {err}")
+        except requests.exceptions.ConnectionError as err:
+            logging.error(f"Erro de conexão com o servidor: {err}")
+        except requests.exceptions.Timeout as err:
+            logging.error(f"Timeout na requisição: {err}")
+        except requests.exceptions.JSONDecodeError as err:
+            logging.error(f"Erro ao decodificar JSON: {err}")
+        except requests.exceptions.RequestException as err:
+            logging.error(f"Erro na requisição: {err}")
         except Exception as err:
-            logging.error("Erro geral: ", err)
-        return []
+            logging.error(f"Erro inesperado: {err}")
+            
+        return None
     
     def get_data(self) -> List[Dict[str, Any]]:
         return self.__extract()
