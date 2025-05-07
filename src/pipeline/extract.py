@@ -12,12 +12,18 @@ import logging
 # --- configs
 load_dotenv()
 API_BASE_URL = os.getenv('API_BASE_URL')
-logging.basicConfig()
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 # --- classe 
 class APIExtractor:
-    def __init__(self):
-        self.url = API_BASE_URL
+    def __init__(self, url=None, timeout=10):
+        self.url = url or API_BASE_URL
+        self.timeout = timeout
+        if self.url is None:
+            raise ValueError('URL da API não informada')
 
     def __extract(self) -> List[Dict[str, Any]]:
         logging.info('Iniciando extração dos dados da API')
