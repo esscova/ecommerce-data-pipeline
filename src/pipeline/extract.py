@@ -60,12 +60,24 @@ class APIExtractor:
         return None
     
     def get_data(self) -> List[Dict[str, Any]]:
-        return self.__extract()
+        """
+            Obtém os dados da API com validação.
+        
+            Returns:
+                Lista de dicionários com os dados ou lista vazia em caso de erro.
+        """
+        data = self.__extract()
+        
+        if data is None:
+            logging.warning('Retornando lista vazia pois nao foi possivel extrair os dados')
+            return []
+        
+        return data
  
 # --- testes de execução
 if __name__ == '__main__':
     import json
     extractor = APIExtractor()
     data = extractor.get_data()
-    print(json.dumps(data[:3], indent=4, ensure_ascii=False))
+    if data:print(json.dumps(data[:3], indent=4, ensure_ascii=False))
 
