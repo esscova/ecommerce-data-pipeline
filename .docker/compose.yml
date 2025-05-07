@@ -1,0 +1,26 @@
+services:
+  mongodb:
+    image: mongo:7.0 
+    container_name: mongodb_ecommerce
+    ports:
+      - "${MONGO_EXTERNAL_PORT}:27017"
+    volumes:
+      - mongo_data:/data/db 
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - etl_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+    etl_network:
+        driver: bridge
+volumes:
+    mongo_data:
+        driver: local
