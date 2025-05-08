@@ -34,14 +34,13 @@ class ETL:
     3. Carregar os dados em um banco MongoDB
     """
     
-    def __init__(self, raw_data_path='src/data/raw/vendas.json', 
-                transformed_data_path='src/data/transformed/vendas_transformadas.json'):
+    def __init__(self, raw_data_path=None, transformed_data_path=None):
         """
         Inicializa o pipeline ETL.
         
         Args:
-            raw_data_path: Caminho para salvar os dados brutos
-            transformed_data_path: Caminho para salvar os dados transformados
+            raw_data_path: Caminho para salvar os dados brutos (opcional)
+            transformed_data_path: Caminho para salvar os dados transformados (opcional)
         """
         self.extractor = APIExtractor()
         self.transformador = Transform()
@@ -49,8 +48,12 @@ class ETL:
             json_raw_path=raw_data_path,
             json_transformed_path=transformed_data_path
         )
-        self.raw_data_path = raw_data_path
-        self.transformed_data_path = transformed_data_path
+        # caminhos gerenciados pelo LoadData
+        self.raw_data_path = self.loader.json_raw_path
+        self.transformed_data_path = self.loader.json_transformed_path
+        
+        logger.info(f"ETL inicializado - Dados brutos: {self.raw_data_path}")
+        logger.info(f"ETL inicializado - Dados transformados: {self.transformed_data_path}")
         
     def extrair(self, force_refresh=False) -> List[Dict[str, Any]]:
         """
