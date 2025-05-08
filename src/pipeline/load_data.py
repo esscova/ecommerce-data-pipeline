@@ -11,12 +11,32 @@ import os
 import pymongo
 from typing import List, Dict, Any
 from dotenv import load_dotenv
+from pathlib import Path
 
 # --- variaveis
 load_dotenv()
 MONGO_URI = os.getenv('MONGO_URI')
 MONGO_DB = os.getenv('MONGO_DB', 'analytics')
 MONGO_COLLECTION = os.getenv('MONGO_COLLECTION', 'vendas')
+
+# --- função para resolver caminhos relativos à raiz do projeto
+def get_project_root():
+    """
+    Retorna o caminho raiz do projeto independentemente de onde o script é executado.
+    """
+    # raiz do projeto
+    current_path = Path(os.path.dirname(os.path.abspath(__file__)))
+    
+    # busca ate encontrar Makefile ou requirements.txt ... que estao na raiz
+    while current_path != current_path.parent:
+        if (current_path / "Makefile").exists() or (current_path / "requirements.txt").exists():
+            return current_path
+        if (current_path / "src").exists() and (current_path / "src").is_dir():
+            return current_path
+        current_path = current_path.parent
+        
+    # se não encontrar usa dois níveis acima como fallback 
+    return Path(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # --- configs
 logging.basicConfig(
@@ -46,12 +66,24 @@ class LoadData:
             mongo_db: Nome do banco de dados MongoDB (opcional, usa MONGO_DB do .env por padrão)
             mongo_collection: Nome da coleção MongoDB (opcional, usa MONGO_COLLECTION do .env por padrão)
         """
-        self.json_raw_path = json_raw_path
-        self.json_transformed_path = json_transformed_path
+        # caminho raiz do projeto
+        self.project_root = get_project_root()
+        
+        # caminhos padrão relativos à raiz do projeto
+        default_raw_path = os.path.join(self.project_root, "src", "data", "raw", "vendas.json")
+        default_transformed_path = os.path.join(self.project_root, "src", "data", "transformed", "vendas_transformadas.json")
+        
+        # caminhos fornecidos ou os padrões
+        self.json_raw_path = json_raw_path or default_raw_path
+        self.json_transformed_path = json_transformed_path or default_transformed_path
+        
         self.mongo_uri = mongo_uri or MONGO_URI
         self.mongo_db = mongo_db or MONGO_DB
         self.mongo_collection = mongo_collection or MONGO_COLLECTION
         self.mongo_client = None
+        
+        logger.info(f"Caminho para dados brutos: {self.json_raw_path}")
+        logger.info(f"Caminho para dados transformados: {self.json_transformed_path}")
         
     def save_raw_data(self, data: List[Dict[str, Any]], file_path: str = None, pretty=True) -> bool:
         """
@@ -106,6 +138,11 @@ class LoadData:
         if not data: 
             logger.error("Não há dados para salvar em JSON")
             return False
+        
+        if not os.path.isabs(file_path): # se nao for absoluto
+            file_path = os.path.join(self.project_root, file_path)
+            
+        logger.info(f"Salvando dados no caminho absoluto: {file_path}")
         
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         
