@@ -20,7 +20,7 @@ logging.basicConfig(
 
 # --- classe
 class APIExtractor:
-    def __init__(self, url=None, timeout=10, file_path='src/data/dados.json'):
+    def __init__(self, url=None, timeout=10, file_path='src/data/raw/dados.json'):
         """
         Inicializa o extrator de API.
         
