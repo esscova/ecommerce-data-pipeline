@@ -6,9 +6,10 @@ processados no banco de dados MongoDB.
 """
 
 # --- bibliotecas
-from extract import APIExtractor
-from transform import Transform
-from load_data import LoadData
+from .extract import APIExtractor
+from .transform import Transform
+from .load_data import LoadData
+
 import logging
 from typing import List, Dict, Any
 from dotenv import load_dotenv
