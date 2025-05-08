@@ -180,3 +180,5 @@ pyrightconfig.json
 src/data/dados.json
 src/data/transformed/dados_transformados.json
 src/data/raw/dados.json
+src/data/raw/vendas.json
+src/data/transformed/vendas_transformadas.json
