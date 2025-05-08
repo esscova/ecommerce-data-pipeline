@@ -178,3 +178,5 @@ pyrightconfig.json
 # Generated using ignr.py - github.com/Antrikshy/ignr.py
 
 src/data/dados.json
+src/data/transformed/dados_transformados.json
+src/data/raw/dados.json
