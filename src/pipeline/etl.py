@@ -8,7 +8,7 @@ processados no banco de dados MongoDB.
 # --- bibliotecas
 from extract import APIExtractor
 from transform import Transform
-from load_mongo import MongoDBLoader
+from load_data import LoadData
 import logging
 from typing import List, Dict, Any
 from dotenv import load_dotenv
@@ -42,9 +42,12 @@ class ETL:
             raw_data_path: Caminho para salvar os dados brutos
             transformed_data_path: Caminho para salvar os dados transformados
         """
-        self.extractor = APIExtractor(file_path=raw_data_path)
-        self.transformador = Transform(file_path=transformed_data_path)
-        self.loader = MongoDBLoader()
+        self.extractor = APIExtractor()
+        self.transformador = Transform()
+        self.loader = LoadData(
+            json_raw_path=raw_data_path,
+            json_transformed_path=transformed_data_path
+        )
         self.raw_data_path = raw_data_path
         self.transformed_data_path = transformed_data_path
         
@@ -63,20 +66,18 @@ class ETL:
         
         if dados:
             logger.info(f"Extração concluída com sucesso. {len(dados)} registros obtidos.")
-            # Salva os dados brutos
-            self.extractor.save_to_json()
+            self.loader.save_raw_data(dados, self.raw_data_path)
         else:
             logger.error("Falha na extração dos dados. Pipeline interrompido.")
             
         return dados
         
-    def transformar(self, dados: List[Dict[str, Any]], save_file=True) -> List[Dict[str, Any]]:
+    def transformar(self, dados: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Transforma os dados extraídos.
         
         Args:
             dados: Dados a serem transformados
-            save_file: Se True, salva os dados transformados em arquivo
             
         Returns:
             Dados transformados
@@ -86,7 +87,10 @@ class ETL:
             return []
             
         logger.info("Iniciando fase de TRANSFORMAÇÃO")
-        dados_transformados = self.transformador.run(dados, save_file=save_file)
+        dados_transformados = self.transformador.transform_data(dados)
+        
+        if dados_transformados:
+            self.loader.save_transformed_data(dados_transformados, self.transformed_data_path)
         
         logger.info(f"Transformação concluída. {len(dados_transformados)} registros transformados.")
         return dados_transformados
@@ -107,7 +111,7 @@ class ETL:
             
         logger.info("Iniciando fase de CARGA para MongoDB")
         
-        resultado = self.loader.carregar_dados(dados) # mongodbloader para carregar
+        resultado = self.loader.carregar_no_mongodb(dados)
         
         if resultado:
             logger.info("Carga no MongoDB concluída com sucesso.")
