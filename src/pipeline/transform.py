@@ -88,12 +88,13 @@ class Transform:
                     
         return lista_dicts
     
-    def run(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def run(self, data: List[Dict[str, Any]], save_file=False) -> List[Dict[str, Any]]:
         """
-        Executa todas as transformações nos dados e salva o resultado.
+        Executa todas as transformações nos dados e opcionalmente salva o resultado.
         
         Args:
             data: Lista de dicionários a serem transformados
+            save_file: Se True, salva os dados transformados no arquivo configurado
             
         Returns:
             Lista com os dados transformados
@@ -104,17 +105,20 @@ class Transform:
             
         logging.info(f"Iniciando transformação de {len(data)} registros")
         
-        # transformações em sequência
-        transformed_data = data.copy()  
+        # executando transformações
+        transformed_data = data.copy()
         transformed_data = self._renomear_chaves(transformed_data)
         transformed_data = self._normalizar_categorias(transformed_data)
         transformed_data = self._adicionar_valor_total(transformed_data)
         
         self.data = transformed_data
         
-        # Salvando o resultado
-        self._save_to_file()
-        
+        if save_file:
+            self._save_to_file()
+            logging.info(f"Dados salvos no arquivo {self.file_path}")
+        else:
+            logging.info("Dados transformados sem salvamento em arquivo")
+            
         logging.info(f"Transformação concluída. {len(self.data)} registros transformados")
         return self.data
         
