@@ -1,10 +1,13 @@
 """
-Este script é responsável por executar o pipeline ETL.
+Script principal para executar o pipeline ETL.
+Este script coordena o fluxo completo do ETL, orquestrando a extração de dados da API,
+a transformação dos dados conforme as regras de negócio, e o carregamento dos dados
+processados no banco de dados MongoDB.
 """
 
 from pipeline.etl import ETL
 
-if __name__ == "__main__":
+def main():
     try:
         pipeline = ETL()
         sucesso = pipeline.executar_pipeline()
@@ -16,3 +19,6 @@ if __name__ == "__main__":
             
     except Exception as e:
         print(f"Erro: {e}")
+
+if __name__ == "__main__":
+    main()
