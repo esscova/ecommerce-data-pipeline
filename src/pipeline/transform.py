@@ -3,8 +3,6 @@
 #
 
 # --- bibliotecas
-import os
-import json
 import logging
 from typing import List, Dict, Any
 
@@ -16,16 +14,10 @@ logging.basicConfig(
 
 # --- Classe
 class Transform:
-    def __init__(self, file_path='src/data/transformed/dados_transformados.json', pretty=True):
+    def __init__(self):
         """
         Inicializa a classe de transformação de dados.
-        
-        Args:
-            file_path: Caminho onde o arquivo transformado será salvo
-            pretty: Se True, formata o JSON com indentação
         """
-        self.file_path = file_path
-        self.pretty = pretty
         self.data = []
         
     def _renomear_chaves(self, lista_dicts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -88,13 +80,12 @@ class Transform:
                     
         return lista_dicts
     
-    def run(self, data: List[Dict[str, Any]], save_file=False) -> List[Dict[str, Any]]:
+    def transform_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Executa todas as transformações nos dados e opcionalmente salva o resultado.
+        Executa todas as transformações nos dados.
         
         Args:
             data: Lista de dicionários a serem transformados
-            save_file: Se True, salva os dados transformados no arquivo configurado
             
         Returns:
             Lista com os dados transformados
@@ -113,45 +104,20 @@ class Transform:
         
         self.data = transformed_data
         
-        if save_file:
-            self._save_to_file()
-            logging.info(f"Dados salvos no arquivo {self.file_path}")
-        else:
-            logging.info("Dados transformados sem salvamento em arquivo")
-            
         logging.info(f"Transformação concluída. {len(self.data)} registros transformados")
         return self.data
-        
-    def _save_to_file(self) -> bool:
-        """
-        Salva os dados transformados em um arquivo.
-        
-        Returns:
-            True se o arquivo foi salvo com sucesso, False caso contrário
-        """
-        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
-        
-        try:
-            with open(self.file_path, 'w', encoding='utf-8') as file:
-                indent = 4 if self.pretty else None
-                json.dump(self.data, file, indent=indent, ensure_ascii=False)
-                
-            logging.info(f"Dados transformados salvos com sucesso em {self.file_path}")
-            return True
-            
-        except Exception as err:
-            logging.error(f"Erro ao salvar arquivo transformado: {err}")
-            return False
 
 
 # --- testes
 if __name__ == "__main__":
+    import json
+    
     try:
         with open('src/data/raw/dados.json', 'r', encoding='utf-8') as f:
             dados = json.load(f)
             
         transformador = Transform()
-        dados_transformados = transformador.run(dados)
+        dados_transformados = transformador.transform_data(dados)
         
         print(f"\nAmostra dos dados transformados ({len(dados_transformados)} registros):")
         for i, item in enumerate(dados_transformados[:2]):  
