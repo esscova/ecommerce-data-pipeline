@@ -1,6 +1,10 @@
-#
-# Script responsável por transformar os dados
-#
+"""
+Módulo de transformação de dados para o pipeline ETL.
+Este módulo é responsável por todas as transformações aplicadas aos dados brutos,
+incluindo renomeação de campos, normalização de valores e cálculos derivados.
+As transformações são focadas em preparar os dados para análise e armazenamento,
+sem envolver qualquer persistência de dados, seguindo o princípio de responsabilidade única.
+"""
 
 # --- bibliotecas
 import logging
