@@ -46,7 +46,7 @@ shell-postgres:
 	docker exec -it $(POSTGRES_CONTAINER) bash
 
 connect-postgres:
-	docker exec -it $(POSTGRES_CONTAINER) psql -U postgres
+	docker exec -it $(POSTGRES_CONTAINER) psql -U admin -d analytics
 
 logs-postgres:
 	docker logs $(POSTGRES_CONTAINER)
