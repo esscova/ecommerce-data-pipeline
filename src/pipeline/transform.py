@@ -9,6 +9,7 @@ sem envolver qualquer persistência de dados, seguindo o princípio de responsab
 # --- bibliotecas
 import logging
 from typing import List, Dict, Any
+from datetime import datetime
 
 # Configuração de logging
 logging.basicConfig(
@@ -84,6 +85,31 @@ class Transform:
                     
         return lista_dicts
     
+    def _converter_datas(self, lista_dicts: List[Dict[str, Any]], campos_data: List[str], formato: str = '%Y-%m-%d') -> List[Dict[str, Any]]:
+        """
+        Converte os campos de texto contendo datas para objetos date do Python.
+        
+        Args:
+            lista_dicts: Lista contendo dicionários com campos de data
+            campos_data: Lista com os nomes dos campos que contêm datas
+            formato: Formato da data nos dados de entrada (padrão: '%Y-%m-%d')
+            
+        Returns:
+            Lista com os dicionários atualizados
+        """
+        logging.info(f"Convertendo campos de data: {', '.join(campos_data)}")
+        
+        for item in lista_dicts:
+            for campo in campos_data:
+                if campo in item and item[campo]:
+                    try:
+                        # string -> datetime -> data
+                        item[campo] = datetime.strptime(item[campo], formato).date()
+                    except ValueError:
+                        logging.warning(f"Não foi possível converter data '{item[campo]}' no formato {formato} para o item: {item.get('Produto', 'desconhecido')}")
+                        
+        return lista_dicts
+    
     def transform_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Executa todas as transformações nos dados.
@@ -105,6 +131,7 @@ class Transform:
         transformed_data = self._renomear_chaves(transformed_data)
         transformed_data = self._normalizar_categorias(transformed_data)
         transformed_data = self._adicionar_valor_total(transformed_data)
+        transformed_data = self._converter_datas(transformed_data, ['Data da Compra'], '%d/%m/%Y')
         
         self.data = transformed_data
         
@@ -117,7 +144,7 @@ if __name__ == "__main__":
     import json
     
     try:
-        with open('src/data/raw/dados.json', 'r', encoding='utf-8') as f:
+        with open('src/data/raw/vendas.json', 'r', encoding='utf-8') as f:
             dados = json.load(f)
             
         transformador = Transform()
