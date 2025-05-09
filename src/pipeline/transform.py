@@ -144,7 +144,7 @@ if __name__ == "__main__":
     import json
     
     try:
-        with open('src/data/raw/vendas.json', 'r', encoding='utf-8') as f:
+        with open('../data/raw/vendas.json', 'r', encoding='utf-8') as f:
             dados = json.load(f)
             
         transformador = Transform()
