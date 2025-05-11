@@ -99,7 +99,7 @@ class MongoManager:
     def set_active_collection(self, collection_name: str) -> bool:
         """Define ou altera a coleção ativa para operações subsequentes."""
         
-        if not self.is_connected or not self.db: # conectado e banco de dados definido?
+        if not self.is_connected or self.db is None: # conectado e banco de dados definido?
             logger.error("Não é possível definir a coleção ativa: não conectado ao MongoDB ou banco de dados não definido.")
             return False
         
@@ -114,7 +114,7 @@ class MongoManager:
                  target_collection_name: Optional[str] = None) -> bool:
         """Adiciona uma lista de documentos a uma coleção."""
 
-        if not self.is_connected or not self.db: # conectado ou banco de dados definido?
+        if not self.is_connected or self.db is None: # conectado ou banco de dados definido?
             logger.error("Não conectado ao MongoDB. Não é possível adicionar dados.")
             return False
 
@@ -124,7 +124,7 @@ class MongoManager:
             collection_to_use = self.db[target_collection_name]
             logger.debug(f"Adicionando dados na coleção específica: {self.db_name}/{target_collection_name}")
         
-        elif self.collection: # coleção padrão?
+        elif self.collection is not None: # coleção padrão?
             collection_to_use = self.collection
             logger.debug(f"Adicionando dados na coleção padrão da instância: {self.db_name}/{self.collection_name}")
         
@@ -165,7 +165,7 @@ class MongoManager:
             collection_to_use = self.db[source_collection_name]
             logger.debug(f"Extraindo dados da coleção específica: {self.db_name}/{source_collection_name}")
         
-        elif self.collection: # coleção padrão?
+        elif self.collection is not None: # coleção padrão?
             collection_to_use = self.collection
             logger.debug(f"Extraindo dados da coleção padrão da instância: {self.db_name}/{self.collection_name}")
         
