@@ -155,7 +155,7 @@ class MongoManager:
                      source_collection_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Extrai documentos de uma coleção com base nos critérios fornecidos."""
 
-        if not self.is_connected or not self.db: # conectado ou banco de dados definido?
+        if not self.is_connected or self.db is None: # conectado ou banco de dados definido?
             logger.error("Não conectado ao MongoDB. Não é possível extrair dados.")
             return []
 
@@ -192,3 +192,31 @@ class MongoManager:
         except Exception as e:
             logger.error(f"Erro ao extrair dados da coleção '{collection_to_use.name}' do MongoDB: {e}")
             return []
+    
+
+    def delete_all_documents(self, target_collection_name: Optional[str] = None) -> bool:
+        """Deleta todos os documentos de uma coleção especificada ou da coleção ativa."""
+        if not self.is_connected or self.db is None:
+            logger.error("Não conectado ao MongoDB ou banco de dados não definido. Não é possível deletar documentos.")
+            return False
+
+        collection_to_clear = None
+        # Determina qual coleção limpar
+        if target_collection_name:
+            collection_to_clear = self.db[target_collection_name]
+            logger.debug(f"Operação de delete direcionada à coleção específica: {self.db_name}/{target_collection_name}")
+        elif self.collection is not None: 
+            collection_to_clear = self.collection
+            logger.debug(f"Operação de delete direcionada à coleção ativa da instância: {self.db_name}/{self.collection_name}")
+        else:
+            logger.error("Nenhuma coleção de destino especificada ou ativa para limpar.")
+            return False
+
+        try:
+            logger.warning(f"DELETANDO TODOS os documentos da coleção '{collection_to_clear.name}' no banco '{self.db_name}'...")
+            result = collection_to_clear.delete_many({}) # O filtro vazio {} deleta todos os documentos
+            logger.info(f"{result.deleted_count} documentos deletados com sucesso da coleção '{collection_to_clear.name}'.")
+            return True
+        except Exception as e:
+            logger.error(f"Erro ao deletar documentos da coleção '{collection_to_clear.name}': {e}", exc_info=True)
+            return False
