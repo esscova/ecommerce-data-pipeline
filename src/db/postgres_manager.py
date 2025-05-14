@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Optional, Tuple, Union
 import logging
+import glob
 
 load_dotenv()
 
@@ -221,4 +222,48 @@ class PostgresManager:
             logger.error(f"Query de carga (início): {insert_sql[:200]}...")
             raise # relevanta para que o __exit__ possa fazer rollback
 
+
+    def execute_sql_file(self, file_path: str):
+        """Executa um arquivo SQL."""
+        if not self.is_connected or not self.cursor:
+            msg = "Não conectado ao PostgreSQL. Não é possível executar o arquivo SQL."
+            logger.error(msg)
+            raise ConnectionError(msg)
+        try:
+            with open(file_path, 'r') as f:
+                sql_script = f.read()
+            self.cursor.execute(sql_script) 
+            logger.info(f"Arquivo SQL '{file_path}' executado com sucesso.")
+        except psycopg2.Error as e:
+            logger.error(f"Erro ao executar arquivo SQL '{file_path}': {e}")
+            raise
+        except FileNotFoundError:
+            logger.error(f"Arquivo SQL não encontrado: {file_path}")
+            raise
+
+    def setup_database_schema(self, schema_scripts_dir: str):
+        """
+        Executa todos os arquivos .sql em um diretório para configurar o esquema.
+        Os arquivos são executados em ordem alfanumérica.
+        """
+        if not self.is_connected:
+            logger.error("Não conectado ao PostgreSQL. Não é possível configurar o esquema.")
+            return False 
+
+        logger.info(f"Configurando esquema do banco de dados a partir de scripts em: {schema_scripts_dir}")
+        sql_files = sorted(glob.glob(os.path.join(schema_scripts_dir, "*.sql"))) # Garante a ordem
+
+        if not sql_files:
+            logger.warning(f"Nenhum arquivo .sql encontrado em '{schema_scripts_dir}'. Esquema não alterado.")
+            return True # considerar sucesso, pois apenas nada a fazer
+
+        for sql_file in sql_files:
+            try:
+                logger.info(f"Executando script de esquema: {sql_file}")
+                self.execute_sql_file(sql_file)
+            except Exception as e:
+                logger.error(f"Falha ao executar script de esquema '{sql_file}': {e}. Parando configuração do esquema.", exc_info=True)
+                return False # falha na configuração do esquema
+        logger.info("Configuração do esquema do banco de dados concluída com sucesso.")
+        return True
 # --- 
