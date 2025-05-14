@@ -1,14 +1,11 @@
 -- Popula DIM_PRODUTO com produtos únicos da tabela de staging
 INSERT INTO DIM_PRODUTO (
     nome_produto,
-    categoria,
-    brand 
-          
+    categoria
 )
 SELECT
     DISTINCT s.product_name AS nome_produto,
-    s.category_name AS categoria,
-    s.brand 
+    s.category_name AS categoria
 FROM
     staging_produtos_ecommerce s
 WHERE
@@ -19,7 +16,6 @@ WHERE
         FROM DIM_PRODUTO dp
         WHERE dp.nome_produto = s.product_name
           AND dp.categoria = s.category_name
-          AND (dp.brand = s.brand OR (dp.brand IS NULL AND s.brand IS NULL)) -- lidar com brand nulo
     )
 ORDER BY
-    s.product_name, s.category_name, s.brand;
+    s.product_name, s.category_name;

@@ -28,7 +28,6 @@ FROM
 LEFT JOIN
     DIM_PRODUTO dp ON s.product_name = dp.nome_produto
                     AND s.category_name = dp.categoria
-                    AND (s.brand = dp.brand OR (s.brand IS NULL AND dp.brand IS NULL)) -- ajuda se brand não for usado
 LEFT JOIN
     DIM_VENDEDOR dv ON s.seller_name = dv.nome_vendedor
 LEFT JOIN
