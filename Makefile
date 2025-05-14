@@ -1,6 +1,6 @@
 # --- variaveis
 COMPOSE_FILE = .docker/compose.yml
-ENV_FILE = src/.env
+ENV_FILE = .env
 MONGO_CONTAINER = mongodb_ecommerce
 POSTGRES_CONTAINER = postgres_ecommerce
 
