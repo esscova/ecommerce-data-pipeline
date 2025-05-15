@@ -4,6 +4,41 @@ Este projeto implementa um pipeline de Extração, Transformação e Carga (ETL)
 
 Este projeto foi desenvolvido como um exercício prático e peça de portfólio, demonstrando habilidades em engenharia de dados, Python, SQL, MongoDB, PostgreSQL, Docker e modelagem de dados.
 
+```mermaid
+flowchart TD
+    A["API de Produtos Externa[🌐]"] --> B["Script Python de Extração[🐍]"]
+    B --> C[("Dados Brutos")]
+    C --> D[("MongoDB [🍃] Armazenamento de Dados Brutos")]
+    D --> E["Script Python de Transformação [🐍]"]
+    F["Regras de Transformação - Limpeza - Normalização - Conversão"] -.-> E
+    E --> G[("Dados Transformados")]
+    G --> H[("PostgreSQL [🐘] Tabela de Staging")]
+    H --> I["Scripts SQL [📊]"]
+    I --> J["Data Warehouse Star Schema [🐘 PostgreSQL]"]
+    J --> K["Tabelas de Dimensão - Produtos - Clientes - Tempo - Localização"]
+    J --> L["Tabela Fato - Vendas"]
+    K --> M["Análise de BI [📈]"]
+    L --> M
+    
+    classDef api fill:#f9f9ff,stroke:#333,stroke-width:2px
+    classDef python fill:#e6f3ff,stroke:#333,stroke-width:2px
+    classDef data fill:#f9f6e5,stroke:#333,stroke-width:2px
+    classDef mongodb fill:#e6ffe6,stroke:#333,stroke-width:2px
+    classDef postgres fill:#ffe6e6,stroke:#333,stroke-width:2px
+    classDef sql fill:#f2e6ff,stroke:#333,stroke-width:2px
+    classDef bi fill:#ffe6f2,stroke:#333,stroke-width:2px
+    classDef warehouse fill:#e6ffff,stroke:#333,stroke-width:2px
+    
+    class A api
+    class B,E python
+    class C,G data
+    class D mongodb
+    class H,J,K,L postgres
+    class I sql
+    class M bi
+    class F data
+```
+
 ## Funcionalidades
 
 *   **Extração de Dados:** Coleta dados de produtos de uma API REST.
